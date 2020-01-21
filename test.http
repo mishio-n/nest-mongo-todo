@@ -1,0 +1,8 @@
+DELETE  http://localhost:3000/api/todo/5e568ac79301ce718be207ea HTTP/1.1
+Content-Type: application/json
+
+{
+    "user":"mishio-n",
+    "task":"Sample",
+    "deadline":"2020/3/1"
+}
