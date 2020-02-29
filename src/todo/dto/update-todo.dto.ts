@@ -22,7 +22,7 @@ export class UpdateTodoDTO {
 
   @IsBoolean()
   @ApiPropertyOptional({
-    description: '期限日',
+    description: 'タスクの状態（完了・未完了）',
   })
   readonly isDone: boolean;
 

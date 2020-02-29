@@ -7,9 +7,10 @@ import {
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Todo, TodoDoc } from '../model/todo.model';
+import * as moment from 'moment';
 
 @Injectable()
-export class IdTransformInterceptor implements NestInterceptor {
+export class TransformInterceptor implements NestInterceptor {
   intercept(
     context: ExecutionContext,
     next: CallHandler,
@@ -26,19 +27,18 @@ export class IdTransformInterceptor implements NestInterceptor {
   }
 }
 
-/**
- * _id を id に変更する
- * TodoDoc は mongoose の Document を継承しているため、class-transformer だと不要なプロパティが入る
- */
+// Document を継承ているため、
+// class-transformer を使わずに変換する
 function transform(doc: TodoDoc): Todo {
   return {
+    // プロパティ名を変更
     id: doc._id,
     task: doc.task,
     user: doc.user,
     memo: doc.memo,
-    deadline: doc.deadline,
+    deadline: moment(new Date(doc.deadline)).format('YYYY-MM-DD HH:mm:ss'),
     isDone: doc.isDone,
-    createdAt: doc.createdAt,
-    updatedAt: doc.updatedAt,
+    createdAt: moment(new Date(doc.createdAt)).format('YYYY-MM-DD HH:mm:ss'),
+    updatedAt: moment(new Date(doc.updatedAt)).format('YYYY-MM-DD HH:mm:ss'),
   };
 }

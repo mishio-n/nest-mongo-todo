@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Todo, TodoDoc } from './model/todo.model';
 import { CreateTodoDTO } from './dto/create-todo.dto';
+import { UpdateTodoDTO } from './dto/update-todo.dto';
 
 @Injectable()
 export class TodoService {
@@ -35,7 +36,7 @@ export class TodoService {
     });
   }
 
-  async update(id: string, todo: Partial<Todo>): Promise<Todo> {
+  async update(id: string, todo: UpdateTodoDTO): Promise<Todo> {
     // updateOne は成否を返すので、更新後のオブジェクト
     await this.todoModel
       .updateOne({ _id: id }, todo)

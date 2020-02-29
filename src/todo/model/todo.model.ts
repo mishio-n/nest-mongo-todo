@@ -3,21 +3,44 @@ import { ApiProperty } from '@nestjs/swagger';
 
 // Swagger用にclassにする
 export class Todo {
-  @ApiProperty()
+  @ApiProperty({
+    description: 'id',
+  })
   readonly id: string;
-  @ApiProperty()
+
+  @ApiProperty({
+    description: '作成者',
+  })
   readonly user: string;
-  @ApiProperty()
+
+  @ApiProperty({
+    description: 'タスク名',
+  })
   readonly task: string;
-  @ApiProperty()
+
+  @ApiProperty({
+    description: 'タスクの説明',
+  })
   readonly memo: string;
-  @ApiProperty()
-  readonly deadline: Date;
-  @ApiProperty()
-  readonly createdAt: Date;
-  @ApiProperty()
-  readonly updatedAt: Date;
-  @ApiProperty()
+
+  @ApiProperty({
+    description: '期限（YYYY-MM-DD HH:mm:ss）',
+  })
+  readonly deadline: string;
+
+  @ApiProperty({
+    description: '作成日時（YYYY-MM-DD HH:mm:ss）',
+  })
+  readonly createdAt: string;
+
+  @ApiProperty({
+    description: '更新日時（YYYY-MM-DD HH:mm:ss）',
+  })
+  readonly updatedAt: string;
+
+  @ApiProperty({
+    description: 'タスクの状態（完了・未完了）',
+  })
   readonly isDone: boolean;
 }
 

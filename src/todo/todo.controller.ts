@@ -23,7 +23,7 @@ import { CreateTodoDTO } from './dto/create-todo.dto';
 import { Todo } from './model/todo.model';
 import { TodoService } from './todo.service';
 import { UpdateTodoDTO } from './dto/update-todo.dto';
-import { IdTransformInterceptor } from './interceptor/id-transform.interceptor';
+import { TransformInterceptor } from './interceptor/transform.interceptor';
 
 @Controller('todo')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -43,7 +43,7 @@ export class TodoController {
       DBにデータが存在しないか、アクセスできない状態です
     `,
   })
-  @UseInterceptors(IdTransformInterceptor)
+  @UseInterceptors(TransformInterceptor)
   async findAll(): Promise<Todo[]> {
     const list = await this.todoService.findAll();
 
@@ -69,6 +69,7 @@ export class TodoController {
       DBにデータが存在しないか、アクセスできない状態です
     `,
   })
+  @UseInterceptors(TransformInterceptor)
   async findByUser(@Param('user') user: string): Promise<Todo[]> {
     const list = await this.todoService.findByUser(user);
 
@@ -94,7 +95,7 @@ export class TodoController {
       DBにデータが存在しないか、アクセスできない状態です
     `,
   })
-  @UseInterceptors(IdTransformInterceptor)
+  @UseInterceptors(TransformInterceptor)
   async create(@Body() createTodoDto: CreateTodoDTO): Promise<Todo> {
     return this.todoService.create(createTodoDto);
   }
@@ -118,7 +119,7 @@ export class TodoController {
       削除しようとしたデータが存在しません
     `,
   })
-  @UseInterceptors(IdTransformInterceptor)
+  @UseInterceptors(TransformInterceptor)
   async update(
     @Param('id') id: string,
     @Body() updateTodoDTO: UpdateTodoDTO,
