@@ -1,31 +1,43 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
-  Post,
-  Param,
   HttpException,
   HttpStatus,
-  Delete,
+  Param,
+  Post,
   Put,
+  Query,
+  UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
-  UseInterceptors,
 } from '@nestjs/common';
 import {
-  ApiOkResponse,
-  ApiNotFoundResponse,
   ApiBody,
+  ApiForbiddenResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiParam,
   ApiTags,
-  ApiInternalServerErrorResponse,
-  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { CreateTodoDTO } from './dto/create-todo.dto';
+import { UpdateTodoDTO } from './dto/update-todo.dto';
+import { UpdateDoneTodoGuard } from './guard/update-done-todo.guard';
+import { TransformInterceptor } from './interceptor/transform.interceptor';
 import { Todo } from './model/todo.model';
 import { TodoService } from './todo.service';
-import { UpdateTodoDTO } from './dto/update-todo.dto';
-import { TransformInterceptor } from './interceptor/transform.interceptor';
+
+//
+const enum SortType {}
+
+//
+const enum Order {
+  ascending,
+  descending,
+}
 
 @Controller('todo')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -43,7 +55,7 @@ export class TodoController {
   @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
   @UseInterceptors(TransformInterceptor)
-  async findAll(): Promise<Todo[]> {
+  async findAll(@Query() query: any): Promise<Todo[]> {
     const list = await this.todoService.findAll();
 
     if (list.length === 0) {
@@ -107,7 +119,7 @@ export class TodoController {
       更新したTODOデータを返します
     `,
   })
-  @ApiBadRequestResponse({
+  @ApiForbiddenResponse({
     description: `
       完了しているTodoの編集はできません
     `,
@@ -115,19 +127,13 @@ export class TodoController {
   @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
   @UseInterceptors(TransformInterceptor)
+  @UseGuards(UpdateDoneTodoGuard)
   async update(
     @Param('id') id: string,
-    @Body() updateTodoDTO: UpdateTodoDTO,
+    @Body() updateTodoDto: UpdateTodoDTO,
   ): Promise<Todo> {
-    if (!updateTodoDTO.isDone) {
-      throw new HttpException(
-        'Cannot update todo has been done',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     try {
-      return this.todoService.update(id, updateTodoDTO);
+      return this.todoService.update(id, updateTodoDto);
     } catch (error) {
       throw new HttpException(
         'Internal server error',
@@ -172,15 +178,17 @@ export class TodoController {
       更新したTODOデータを返します
     `,
   })
+  @ApiForbiddenResponse({
+    description: `
+      未完了Todoは処理対象外です
+    `,
+  })
   @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
   @UseInterceptors(TransformInterceptor)
   async undone(@Param('id') id: string): Promise<Todo> {
     try {
-      return this.todoService.update(id, {
-        isDone: false,
-        updatedAt: new Date(),
-      });
+      return this.todoService.undone(id);
     } catch (error) {
       throw new HttpException(
         'Internal server error',
