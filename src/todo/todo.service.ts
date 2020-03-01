@@ -37,7 +37,7 @@ export class TodoService {
   }
 
   async update(id: string, todo: UpdateTodoDTO): Promise<Todo> {
-    // updateOne は成否を返すので、更新後のオブジェクト
+    // updateOne は成否を返すので、更新後にオブジェクトを取得する
     await this.todoModel
       .updateOne({ _id: id }, todo)
       .exec()

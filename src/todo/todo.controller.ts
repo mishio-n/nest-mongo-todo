@@ -18,6 +18,8 @@ import {
   ApiBody,
   ApiParam,
   ApiTags,
+  ApiInternalServerErrorResponse,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { CreateTodoDTO } from './dto/create-todo.dto';
 import { Todo } from './model/todo.model';
@@ -38,11 +40,8 @@ export class TodoController {
       DBに保存されている全てのTodoをリストで返します
     `,
   })
-  @ApiNotFoundResponse({
-    description: `
-      DBにデータが存在しないか、アクセスできない状態です
-    `,
-  })
+  @ApiNotFoundResponse()
+  @ApiInternalServerErrorResponse()
   @UseInterceptors(TransformInterceptor)
   async findAll(): Promise<Todo[]> {
     const list = await this.todoService.findAll();
@@ -64,11 +63,8 @@ export class TodoController {
       ユーザーごとのTodoリストを返します
     `,
   })
-  @ApiNotFoundResponse({
-    description: `
-      DBにデータが存在しないか、アクセスできない状態です
-    `,
-  })
+  @ApiNotFoundResponse()
+  @ApiInternalServerErrorResponse()
   @UseInterceptors(TransformInterceptor)
   async findByUser(@Param('user') user: string): Promise<Todo[]> {
     const list = await this.todoService.findByUser(user);
@@ -90,11 +86,8 @@ export class TodoController {
       作成したTODOデータを返します
     `,
   })
-  @ApiNotFoundResponse({
-    description: `
-      DBにデータが存在しないか、アクセスできない状態です
-    `,
-  })
+  @ApiNotFoundResponse()
+  @ApiInternalServerErrorResponse()
   @UseInterceptors(TransformInterceptor)
   async create(@Body() createTodoDto: CreateTodoDTO): Promise<Todo> {
     return this.todoService.create(createTodoDto);
@@ -114,16 +107,25 @@ export class TodoController {
       更新したTODOデータを返します
     `,
   })
-  @ApiNotFoundResponse({
+  @ApiBadRequestResponse({
     description: `
-      削除しようとしたデータが存在しません
+      完了しているTodoの編集はできません
     `,
   })
+  @ApiNotFoundResponse()
+  @ApiInternalServerErrorResponse()
   @UseInterceptors(TransformInterceptor)
   async update(
     @Param('id') id: string,
     @Body() updateTodoDTO: UpdateTodoDTO,
   ): Promise<Todo> {
+    if (!updateTodoDTO.isDone) {
+      throw new HttpException(
+        'Cannot update todo has been done',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     try {
       return this.todoService.update(id, updateTodoDTO);
     } catch (error) {
@@ -144,11 +146,8 @@ export class TodoController {
       正常時は何も返しません
     `,
   })
-  @ApiNotFoundResponse({
-    description: `
-      削除しようとしたデータが存在しません
-    `,
-  })
+  @ApiNotFoundResponse()
+  @ApiInternalServerErrorResponse()
   async delete(@Param('id') id: string): Promise<void> {
     const result = await this.todoService.delete(id);
     if (result.deletedCount === 0) {
@@ -159,5 +158,34 @@ export class TodoController {
     }
 
     return;
+  }
+
+  // 完了 → 未完了への変更はこのエンドポイントでのみ可能とする
+  @Put('/undone/:id')
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+  })
+  @ApiOkResponse({
+    type: Todo,
+    description: `
+      更新したTODOデータを返します
+    `,
+  })
+  @ApiNotFoundResponse()
+  @ApiInternalServerErrorResponse()
+  @UseInterceptors(TransformInterceptor)
+  async undone(@Param('id') id: string): Promise<Todo> {
+    try {
+      return this.todoService.update(id, {
+        isDone: false,
+        updatedAt: new Date(),
+      });
+    } catch (error) {
+      throw new HttpException(
+        'Internal server error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
