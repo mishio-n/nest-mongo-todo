@@ -1,7 +1,4 @@
-import { Todo } from '../../src/todo/model/todo.model';
-import { CreateTodoDTO } from '../../src/todo/dto/create-todo.dto';
-import { UpdateTodoDTO } from '../../src/todo/dto/update-todo.dto';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { Todo } from 'src/todo/shared/todo.model';
 
 export const dummy: Todo[] = [
   {
@@ -256,68 +253,3 @@ export const dummy: Todo[] = [
     updatedAt: '2019-11-15 00:00:00',
   },
 ];
-
-export class DummyDataService {
-  async findAll(): Promise<Todo[]> {
-    return dummy;
-  }
-
-  async findByUser(user: string): Promise<Todo[]> {
-    return dummy.filter(d => d.user === user);
-  }
-
-  async create(createTodoDto: CreateTodoDTO): Promise<Todo> {
-    return {
-      ...createTodoDto,
-      id: `${new Date()}`,
-      createdAt: `${new Date()}`,
-      updatedAt: `${new Date()}`,
-      isDone: false,
-      deadline: `${createTodoDto.deadline}`,
-    };
-  }
-
-  async update(id: string, updateTodoDto: UpdateTodoDTO): Promise<Todo> {
-    const data = dummy.find(d => d.id === id);
-    if (!data) {
-      throw new HttpException('', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    if (data.isDone) {
-      throw new HttpException('', HttpStatus.FORBIDDEN);
-    }
-
-    return {
-      ...data,
-      ...updateTodoDto,
-      deadline: `${updateTodoDto.deadline}`,
-      updatedAt: `${new Date()}`,
-    };
-  }
-
-  async delete(
-    id: string,
-  ): Promise<Partial<{ n: number; ok: number; deletedCount: number }>> {
-    const deleted = dummy.filter(d => d.id !== id);
-    const length = dummy.length - deleted.length;
-
-    return { deletedCount: length };
-  }
-
-  async undone(id: string): Promise<Todo> {
-    const data = dummy.find(d => d.id === id);
-    if (!data) {
-      throw new HttpException('', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    if (!data.isDone) {
-      throw new HttpException('', HttpStatus.FORBIDDEN);
-    }
-
-    return {
-      ...data,
-      isDone: false,
-      updatedAt: `${new Date()}`,
-    };
-  }
-}

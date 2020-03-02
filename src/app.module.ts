@@ -3,10 +3,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'path';
 import { TodoModule } from './todo/todo.module';
+import { MockModule } from './mock/mock.module';
 
 @Module({
   imports: [
     TodoModule,
+    MockModule,
     // database `todo` へのコネクションを生成
     MongooseModule.forRoot('mongodb://localhost:27017/todo', {
       // 以下、エラー抑制のため設定

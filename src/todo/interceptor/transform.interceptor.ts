@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Todo, TodoDoc } from '../model/todo.model';
+import { Todo, TodoDoc } from '../shared/todo.model';
 import * as moment from 'moment';
 
 @Injectable()

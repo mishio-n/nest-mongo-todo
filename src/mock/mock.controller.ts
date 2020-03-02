@@ -24,19 +24,19 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateTodoDTO } from './dto/create-todo.dto';
-import { UpdateTodoDTO } from './dto/update-todo.dto';
-import { UpdateDoneTodoGuard } from './guard/update-done-todo.guard';
-import { TransformInterceptor } from './interceptor/transform.interceptor';
-import { SortKey } from './shared/sort-key';
-import { Todo } from './shared/todo.model';
-import { TodoService } from './todo.service';
+import { CreateTodoDTO } from '../todo/dto/create-todo.dto';
+import { UpdateTodoDTO } from '../todo/dto/update-todo.dto';
+import { UpdateDoneTodoGuard } from '../todo/guard/update-done-todo.guard';
+import { TransformInterceptor } from '../todo/interceptor/transform.interceptor';
+import { SortKey } from '../todo/shared/sort-key';
+import { Todo } from '../todo/shared/todo.model';
+import { MockService } from './mock.service';
 
-@Controller('todo')
+@Controller('mock')
 @UsePipes(new ValidationPipe({ transform: true }))
-@ApiTags('todo')
-export class TodoController {
-  constructor(private readonly todoService: TodoService) {}
+@ApiTags('mock')
+export class MockController {
+  constructor(private readonly mockService: MockService) {}
 
   @Get()
   @ApiQuery({
@@ -68,7 +68,7 @@ export class TodoController {
     @Query('ascending') ascending: string,
     @Query('ascending') sortKey: SortKey,
   ): Promise<Todo[]> {
-    const list = await this.todoService.findAll(
+    const list = await this.mockService.findAll(
       SortKey[sortKey],
       // boolean でないので string として扱う
       ascending === 'true' ? 1 : -1,
@@ -115,7 +115,7 @@ export class TodoController {
     @Query('ascending') ascending: string,
     @Query('ascending') sortKey: SortKey,
   ): Promise<Todo[]> {
-    const list = await this.todoService.findByUser(
+    const list = await this.mockService.findByUser(
       user,
       SortKey[sortKey], // boolean でないので string として扱う
       ascending === 'true' ? 1 : -1,
@@ -142,7 +142,7 @@ export class TodoController {
   @ApiInternalServerErrorResponse()
   @UseInterceptors(TransformInterceptor)
   async create(@Body() createTodoDto: CreateTodoDTO): Promise<Todo> {
-    return this.todoService.create(createTodoDto);
+    return this.mockService.create(createTodoDto);
   }
 
   @Put(':id')
@@ -173,7 +173,7 @@ export class TodoController {
     @Body() updateTodoDto: UpdateTodoDTO,
   ): Promise<Todo> {
     try {
-      return this.todoService.update(id, updateTodoDto);
+      return this.mockService.update(id, updateTodoDto);
     } catch (error) {
       throw new HttpException(
         'Internal server error',
@@ -195,7 +195,7 @@ export class TodoController {
   @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
   async delete(@Param('id') id: string): Promise<void> {
-    const result = await this.todoService.delete(id);
+    const result = await this.mockService.delete(id);
     if (result.deletedCount === 0) {
       throw new HttpException(
         `Missing data has id:${id}`,
@@ -228,7 +228,7 @@ export class TodoController {
   @UseInterceptors(TransformInterceptor)
   async undone(@Param('id') id: string): Promise<Todo> {
     try {
-      return this.todoService.undone(id);
+      return this.mockService.undone(id);
     } catch (error) {
       throw new HttpException(
         'Internal server error',

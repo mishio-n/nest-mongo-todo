@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { TodoSchema } from 'src/todo/schema/todo.schema';
+import { TodoSchema } from 'src/todo/shared/todo.schema';
 import { UpdateDoneTodoGuard } from './guard/update-done-todo.guard';
 import { TransformInterceptor } from './interceptor/transform.interceptor';
 import { TodoController } from './todo.controller';
