@@ -22,6 +22,7 @@ import {
   ApiOkResponse,
   ApiParam,
   ApiTags,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { CreateTodoDTO } from './dto/create-todo.dto';
 import { UpdateTodoDTO } from './dto/update-todo.dto';
@@ -30,13 +31,10 @@ import { TransformInterceptor } from './interceptor/transform.interceptor';
 import { Todo } from './model/todo.model';
 import { TodoService } from './todo.service';
 
-//
-const enum SortType {}
-
-//
-const enum Order {
-  ascending,
-  descending,
+enum SortKey {
+  createdAt = 'createdAt',
+  task = 'task',
+  deadline = 'deadline',
 }
 
 @Controller('todo')
@@ -46,6 +44,22 @@ export class TodoController {
   constructor(private readonly todoService: TodoService) {}
 
   @Get()
+  @ApiQuery({
+    name: 'sortKey',
+    enum: SortKey,
+    required: false,
+    description: `
+      デフォルトは createdAt（作成日順）
+    `,
+  })
+  @ApiQuery({
+    name: 'ascending',
+    type: Boolean,
+    required: false,
+    description: `
+      デフォルトは false（降順）
+    `,
+  })
   @ApiOkResponse({
     type: [Todo],
     description: `
@@ -55,8 +69,15 @@ export class TodoController {
   @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
   @UseInterceptors(TransformInterceptor)
-  async findAll(@Query() query: any): Promise<Todo[]> {
-    const list = await this.todoService.findAll();
+  async findAll(
+    @Query('ascending') ascending: string,
+    @Query('ascending') sortKey: SortKey,
+  ): Promise<Todo[]> {
+    const list = await this.todoService.findAll(
+      SortKey[sortKey],
+      // boolean でないので string として扱う
+      ascending === 'true' ? 1 : -1,
+    );
 
     if (list.length === 0) {
       throw new HttpException('Missing todos in DB', HttpStatus.NOT_FOUND);
@@ -69,6 +90,22 @@ export class TodoController {
     name: 'user',
     type: 'string',
   })
+  @ApiQuery({
+    name: 'sortKey',
+    enum: SortKey,
+    required: false,
+    description: `
+      デフォルトは createdAt（作成日順）
+    `,
+  })
+  @ApiQuery({
+    name: 'ascending',
+    type: Boolean,
+    required: false,
+    description: `
+      デフォルトは false（降順）
+    `,
+  })
   @ApiOkResponse({
     type: [Todo],
     description: `
@@ -78,8 +115,16 @@ export class TodoController {
   @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
   @UseInterceptors(TransformInterceptor)
-  async findByUser(@Param('user') user: string): Promise<Todo[]> {
-    const list = await this.todoService.findByUser(user);
+  async findByUser(
+    @Param('user') user: string,
+    @Query('ascending') ascending: string,
+    @Query('ascending') sortKey: SortKey,
+  ): Promise<Todo[]> {
+    const list = await this.todoService.findByUser(
+      user,
+      SortKey[sortKey], // boolean でないので string として扱う
+      ascending === 'true' ? 1 : -1,
+    );
 
     if (list.length === 0) {
       throw new HttpException(`Missing user ${user}`, HttpStatus.NOT_FOUND);

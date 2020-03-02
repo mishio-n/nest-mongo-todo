@@ -11,18 +11,24 @@ export class TodoService {
     @InjectModel('Todo') private readonly todoModel: Model<TodoDoc>,
   ) {}
 
-  async findAll(): Promise<Todo[]> {
+  async findAll(sortKey: string = 'createdAt', order: number): Promise<Todo[]> {
     return this.todoModel
       .find()
+      .sort({ [sortKey]: order })
       .exec()
       .catch(error => {
         throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
       });
   }
 
-  async findByUser(user: string): Promise<Todo[]> {
+  async findByUser(
+    user: string,
+    sortKey: string = 'createdAt',
+    order: number,
+  ): Promise<Todo[]> {
     return this.todoModel
       .find({ user: `${user}` })
+      .sort({ [sortKey]: order })
       .exec()
       .catch(error => {
         throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
