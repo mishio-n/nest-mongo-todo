@@ -17,8 +17,16 @@ import { MockModule } from './mock/mock.module';
     }),
     // ルートへのアクセスで、client ディレクトリの index.html をサーブする
     ServeStaticModule.forRoot({
-      rootPath: path.join(__dirname, '..', 'client'),
-      renderPath: '/',
+      rootPath: path.join(__dirname, '..', 'client', 'angular'),
+      renderPath: '/angular',
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: path.join(__dirname, '..', 'client', 'react'),
+      renderPath: '/react',
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: path.join(__dirname, '..', 'client', 'vue'),
+      renderPath: '/vue',
     }),
   ],
 })
