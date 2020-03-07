@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { MockService } from './mock.service';
+import { UpdateDoneTodoGuard } from '../todo/guard/update-done-todo.guard';
+import { TransformInterceptor } from '../todo/interceptor/transform.interceptor';
 import { MockController } from './mock.controller';
-import { TransformInterceptor } from 'src/todo/interceptor/transform.interceptor';
-import { UpdateDoneTodoGuard } from 'src/todo/guard/update-done-todo.guard';
+import { MockService } from './mock.service';
 
 @Module({
   controllers: [MockController],

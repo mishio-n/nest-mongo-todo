@@ -10,7 +10,6 @@ import {
   Put,
   Query,
   UseGuards,
-  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -27,7 +26,6 @@ import {
 import { CreateTodoDTO } from '../todo/dto/create-todo.dto';
 import { UpdateTodoDTO } from '../todo/dto/update-todo.dto';
 import { UpdateDoneTodoGuard } from '../todo/guard/update-done-todo.guard';
-import { TransformInterceptor } from '../todo/interceptor/transform.interceptor';
 import { SortKey } from '../todo/shared/sort-key';
 import { Todo } from '../todo/shared/todo.model';
 import { MockService } from './mock.service';
@@ -63,7 +61,6 @@ export class MockController {
   })
   @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
-  @UseInterceptors(TransformInterceptor)
   async findAll(
     @Query('ascending') ascending: string,
     @Query('ascending') sortKey: SortKey,
@@ -109,7 +106,6 @@ export class MockController {
   })
   @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
-  @UseInterceptors(TransformInterceptor)
   async findByUser(
     @Param('user') user: string,
     @Query('ascending') ascending: string,
@@ -140,7 +136,6 @@ export class MockController {
   })
   @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
-  @UseInterceptors(TransformInterceptor)
   async create(@Body() createTodoDto: CreateTodoDTO): Promise<Todo> {
     return this.mockService.create(createTodoDto);
   }
@@ -166,7 +161,6 @@ export class MockController {
   })
   @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
-  @UseInterceptors(TransformInterceptor)
   @UseGuards(UpdateDoneTodoGuard)
   async update(
     @Param('id') id: string,
@@ -225,7 +219,6 @@ export class MockController {
   })
   @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
-  @UseInterceptors(TransformInterceptor)
   async undone(@Param('id') id: string): Promise<Todo> {
     try {
       return this.mockService.undone(id);
